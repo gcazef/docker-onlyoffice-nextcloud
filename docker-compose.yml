@@ -1,18 +1,33 @@
 version: '3'
+
 services:
+  reverse-proxy:
+    image: traefik:1.7.16
+    container_name: traefik
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/traefik.toml:/traefik.toml
+      - ./traefik/acme.json:/acme.json
   app:
     container_name: app-nextcloud
     image: nextcloud:fpm
     stdin_open: true
     tty: true
     restart: always
-    expose:
-      - '80'
-      - '9000'
     networks:
       - onlyoffice
     volumes:
-      - app_data:/var/www/html
+      - ./nextcloud:/var/www/html
+      - /media/raid1/nextcloud:/var/www/html/data
+    expose:
+      - '80'
+      - '9000'
   onlyoffice-document-server:
     container_name: app-onlyoffice-document-server
     image: onlyoffice/documentserver:latest
@@ -33,33 +48,43 @@ services:
     stdin_open: true
     tty: true
     restart: always
-    ports:
-      - 80:80
-      - 443:443
     networks:
       - onlyoffice
+      - web
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - app_data:/var/www/html
+      - ./nextcloud:/var/www/html
+    ports:
+      - 7800:80
+    labels:
+      - traefik.enable=true
+      - "traefik.frontend.rule=Host:MY.HOST.NAME"
+      - "traefik.port=80"
+      - "traefik.docker.network=web"
   db:
     container_name: app-mariadb
     image: mariadb
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./mysql:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=ROOT_PASSWORD
-      - MYSQL_PASSWORD=MYSQL_PASSWORD
-      - MYSQL_DATABASE=nextcloud
+      - MYSQL_PASSWORD=PASSWORD
       - MYSQL_USER=nextcloud
+      - MYSQL_DATABASE=nextcloud
+    ports:
+      - 3306
     networks:
       - onlyoffice
+
 networks:
   onlyoffice:
     driver: 'bridge'
+  web:
+    external: true
+
 volumes:
   document_data:
   document_log:
-  app_data:
   mysql_data:

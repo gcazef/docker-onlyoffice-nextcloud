@@ -1,7 +1,7 @@
 ## Document Server and Nextcloud Docker installation
 
 Document Server and Nextcloud Docker installation will install the preconfigured version of [ONLYOFFICE Document Server][2] connected to Nextcloud to your server running them in Docker containers.
-It also include MariaDB database.
+It also include MariaDB database, and a Traefik reverse proxy for https.
 
 ## Requirements
 
@@ -13,13 +13,18 @@ It also include MariaDB database.
 1. Get the latest version of this repository running the command:
 
     ```
-    git clone https://github.com/yoshwx/docker-onlyoffice-nextcloud.git
+    git clone https://github.com/gcazef/docker-onlyoffice-nextcloud.git
     ```
 
 2. Edit docker-compose:
+* NGINX: add your hostname in traefik.frontend.rule
 * MariaDb : User password / root password
 
-3. Run Docker Compose:
+3. Edit traefik/traefik.toml:
+* In [docker]: domain
+* In [acme]: email
+
+4. Run Docker Compose:
 
     ```
     docker-compose up -d
@@ -27,9 +32,9 @@ It also include MariaDB database.
 
     **Please note**: you might need to wait a couple of minutes when all the containers are up and running after the above command.
 
-4. Now launch the browser and enter the webserver address. The Nextcloud wizard webpage will be opened. Enter all the necessary data to complete the wizard.
+5. Now launch the browser and enter the webserver address. The Nextcloud wizard webpage will be opened. Enter all the necessary data to complete the wizard.
 
-5. Go to the project folder and run the `set_configuration.sh` script:
+6. Go to the project folder and run the `set_configuration.sh` script:
 
     ```
     bash set_configuration.sh
@@ -51,7 +56,7 @@ The set-fonts script allows to automate all these steps.
 
 Official website: [http://www.onlyoffice.org](http://onlyoffice.org "http://www.onlyoffice.org")
 
-Code repository: [https://github.com/yoshwx/docker-onlyoffice-nextcloud.git](https://github.com/yoshwx/docker-onlyoffice-nextcloud.git "https://github.com/yoshwx/docker-onlyoffice-nextcloud.git")
+Code repository: https://github.com/gcazef/docker-onlyoffice-nextcloud.git
 
 SaaS version: [http://www.onlyoffice.com](http://www.onlyoffice.com "http://www.onlyoffice.com")
 
