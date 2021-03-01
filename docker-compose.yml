@@ -16,7 +16,7 @@ services:
       - ./traefik/acme.json:/acme.json
   app:
     container_name: app-nextcloud
-    image: nextcloud:fpm
+    image: nextcloud:20-fpm
     stdin_open: true
     tty: true
     restart: always
